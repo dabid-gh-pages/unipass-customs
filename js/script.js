@@ -52,11 +52,11 @@ translateBtn.addEventListener("click", () => {
 
     if(!text) return;
     toText.setAttribute("placeholder", "조회 중...");
-    let prefix = "https://cors.bridged.cc/"
+    // let prefix = "https://cors.bridged.cc/"
     let apiUrl = `https://unipass.customs.go.kr:38010/ext/rest/cargCsclPrgsInfoQry/retrieveCargCsclPrgsInfo?crkyCn=${apiKey}&${blType}=${blNo}&blYy=${blYear}`
-
-    let corsUrl = prefix + apiUrl
-    fetch(corsUrl)
+    
+    // let corsUrl = prefix + apiUrl
+    fetch(apiUrl)
         .then(res => res.text())
         .then(str => new window.DOMParser().parseFromString(str, "text/xml"))
         .then(data => console.log(data));
