@@ -79,7 +79,7 @@ async function getCustoms(blNo, blType, blYear) {
 
 // input is textarea and func, output is the result (as side effect)
 async function actOnEachLine(textarea, blType, blYear) {
-  var lines = textarea.value.replace(/\r\n/g, "\n").split("\n");
+  var lines = textarea.value.replace(/\r\n/g, "\n").split("\n").filter(Boolean).map((item)=>(item.trim()));
   var newLines, i;
   console.log(lines);
   // Use the map() method of Array where available
