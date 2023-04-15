@@ -28,7 +28,7 @@ blYears.forEach((year) => {
 
 fromText.addEventListener("keyup", () => {
   if (!fromText.value) {
-    toText.value = "";
+    // toText.value = "";
   }
 });
 
@@ -37,31 +37,61 @@ translateBtn.addEventListener("click", () => {
   let blYear = yearTag.value;
 
   if (!fromText.value) return;
-  toText.setAttribute("placeholder", "조회 중...");
+  // toText.setAttribute("placeholder", "조회 중...");
 
   // each line is bl NO
   actOnEachLine(fromText, blType, blYear);
 });
 
-function parseXml(xmlObject) {
-  try {
-    let status = xmlObject
-      .getElementsByTagName("cargCsclPrgsInfoQryVo")[0]
-      .getElementsByTagName("csclPrgsStts")[0].textContent;
-    let processedTime = xmlObject
-      .getElementsByTagName("cargCsclPrgsInfoQryVo")[0]
-      .getElementsByTagName("prcsDttm")[0].textContent;
-    processedTime = processedTime.replace(
-      /(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/g,
-      "$1-$2-$3 $4:$5:$6"
-    );
+const parseXml = (xmlObject) => {
 
-    // console.log(status +" " + processedTime)
-    return status + " " + processedTime;
-  } catch (err) {
-    return "**BL 번호를 다시 확인해 주세요**";
-  }
-}
+
+  const properties = [
+    'csclPrgsStts', 'vydf', 'rlseDtyPridPassTpcd', 'prnm', 'ldprCd', 'shipNat', 'blPt',
+    'dsprNm', 'etprDt', 'prgsStCd', 'msrm', 'wghtUt', 'dsprCd', 'cntrGcnt', 'cargTp',
+    'shcoFlcoSgn', 'pckGcnt', 'etprCstm', 'shipNm', 'hblNo', 'prcsDttm', 'frwrSgn',
+    'spcnCargCd', 'ttwg', 'ldprNm', 'frwrEntsConm', 'dclrDelyAdtxYn', 'mtTrgtCargYnNm',
+    'cargMtNo', 'cntrNo', 'mblNo', 'blPtNm', 'lodCntyCd', 'prgsStts', 'shcoFlco', 'pckUt',
+    'shipNatNm', 'agnc'
+  ];
+
+  const result = {};
+
+  properties.forEach((property) => {
+    const element = xmlObject.getElementsByTagName("cargCsclPrgsInfoQryVo")[0].getElementsByTagName(property)[0];
+    if (element) {
+      result[property] = element.textContent;
+    } else {
+      result[property] = null;
+    }
+  });
+
+  console.log({result})
+
+  return result;
+};
+
+
+// function parseXml(xmlObject) {
+//   try {
+//     console.log({xmlObject})
+//     let status = xmlObject
+//       .getElementsByTagName("cargCsclPrgsInfoQryVo")[0]
+//       .getElementsByTagName("csclPrgsStts")[0].textContent;
+//     let processedTime = xmlObject
+//       .getElementsByTagName("cargCsclPrgsInfoQryVo")[0]
+//       .getElementsByTagName("prcsDttm")[0].textContent;
+//     processedTime = processedTime.replace(
+//       /(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/g,
+//       "$1-$2-$3 $4:$5:$6"
+//     );
+
+//     // console.log(status +" " + processedTime)
+//     return status + " " + processedTime;
+//   } catch (err) {
+//     return "**BL 번호를 다시 확인해 주세요**";
+//   }
+// }
 
 // this is async function that returns a promise (fetch api always return a promise)
 async function getCustoms(blNo, blType, blYear) {
@@ -86,13 +116,15 @@ async function actOnEachLine(textarea, blType, blYear) {
   if (typeof lines.map != "undefined") {
     console.log("first-section");
     // resolve all the promises (array of promises)
-    Promise.all(lines.map((line) => getCustoms(line, blType, blYear))).then(
-      (values) => {
-        console.log(values);
-        toText.value = values.join("\r\n");
-        // newLines = values;
-      }
-    );
+    const promisesArray = lines.map((line) => getCustoms(line, blType, blYear));
+    const arrayOfValues = await Promise.all(promisesArray);
+    const table = await createTableFromObjects(arrayOfValues);
+    
+    document.querySelector(".table-div").innerHTML = ""; // Clear the div if needed
+    document.querySelector(".table-div").appendChild(table);
+
+
+
   } else {
     console.log("second-section");
 
@@ -103,4 +135,35 @@ async function actOnEachLine(textarea, blType, blYear) {
     }
   }
   //   toText.value = newLines.join("\r\n");
+}
+
+
+async function createTableFromObjects(objectsArray) {
+  const table = document.createElement('table');
+  const tableHeader = document.createElement('thead');
+  const tableBody = document.createElement('tbody');
+
+  // Create table header
+  const headerRow = document.createElement('tr');
+  for (const key in objectsArray[0]) {
+    const headerCell = document.createElement('th');
+    headerCell.textContent = key;
+    headerRow.appendChild(headerCell);
+  }
+  tableHeader.appendChild(headerRow);
+  table.appendChild(tableHeader);
+
+  // Create table body
+  objectsArray.forEach((obj) => {
+    const bodyRow = document.createElement('tr');
+    for (const key in obj) {
+      const bodyCell = document.createElement('td');
+      bodyCell.textContent = obj[key];
+      bodyRow.appendChild(bodyCell);
+    }
+    tableBody.appendChild(bodyRow);
+  });
+  table.appendChild(tableBody);
+
+  return table;
 }

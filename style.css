@@ -14,7 +14,7 @@ body{
   background: #5372F0;
 }
 .container{
-  max-width: 690px;
+  max-width: 500px;
   width: 100%;
   padding: 30px;
   background: #fff;
@@ -50,6 +50,7 @@ body{
 
 .controls, li, .icons, .icons i{
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: space-between;
 }
@@ -153,4 +154,11 @@ body{
   .controls .exchange{
     font-size: 14px;
   }
+}
+
+li.row.api-key input {
+  width: 300px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 400;
 }

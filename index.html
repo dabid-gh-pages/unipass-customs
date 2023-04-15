@@ -22,24 +22,28 @@
             class="from-text"
             placeholder="BL No 입력하기"
           ></textarea>
-          <textarea
+          <!-- <textarea
             spellcheck="false"
             readonly
             disabled
             class="to-text"
             placeholder="통관 진행현황"
-          ></textarea>
+          ></textarea> -->
         </div>
         <ul class="controls">
           <li class="row from">
             <select class="blType"></select>
-
             <select class="blYear"></select>
           </li>
+          <li class="row api-key">
+            <input type="text" id="apiKey" placeholder="API Key 입력하기">
+          </li>
         </ul>
+        <button>통관 진행현황 조회</button>
       </div>
-      <button>통관 진행현황 조회</button>
+      <div class="table-div"></div>
     </div>
+    
     <script src="script.js"></script>
   </body>
 </html>
